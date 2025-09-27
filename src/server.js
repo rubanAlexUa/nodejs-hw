@@ -26,16 +26,16 @@ app.use(
 );
 
 app.get('/notes', (req, res) => {
-  res.status((200).json({ message: 'Retrieved all notes' }));
+  res.status(200).json({ message: 'Retrieved all notes' });
 });
 
 app.get('/notes:noteId', (req, res) => {
   const { noteId } = req.params;
-  res.status((200).json({ message: `Retrieved note with ID: ${noteId}` }));
+  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
 });
 
 app.get((res, req, next) => {
-  res.status((404).json({ message: 'Route not found' }));
+  res.status(404).json({ message: 'Route not found' });
 });
 
 app.get('/test-error', () => {
@@ -44,12 +44,10 @@ app.get('/test-error', () => {
 
 app.get((err, res, req, next) => {
   console.log('Error:', err.message);
-  res.status(
-    (500).json({
-      message: 'Simulated server error',
-      error: err.message,
-    }),
-  );
+  res.status(500).json({
+    message: 'Simulated server error',
+    error: err.message,
+  });
 });
 
 app.listen(PORT, () => {
