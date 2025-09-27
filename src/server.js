@@ -38,6 +38,10 @@ app.get((res, req, next) => {
   res.status((404).json({ message: 'Route not found' }));
 });
 
+app.get('/test-error', () => {
+  throw new Error('Simulated server error');
+});
+
 app.get((err, res, req, next) => {
   console.log('Error:', err.message);
   res.status(
