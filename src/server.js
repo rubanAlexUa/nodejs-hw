@@ -43,9 +43,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res
-    .status(500)
-    .json({ message: 'Simulated server error', error: err.message });
+  res.status(500).json({ message: err.message });
 });
 
 app.listen(PORT, () => {
