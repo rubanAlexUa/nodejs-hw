@@ -4,7 +4,7 @@ import cors from 'cors';
 import pino from 'pino-http';
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT ?? 3030;
 
 app.use(express.json());
 app.use(cors());
@@ -43,9 +43,9 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(500).json({
-    message: `Simulated server error: ${err.message}`,
-  });
+  res
+    .status(500)
+    .json({ message: 'Simulated server error', error: err.message });
 });
 
 app.listen(PORT, () => {
