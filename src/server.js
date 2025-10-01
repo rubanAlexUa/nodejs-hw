@@ -2,7 +2,6 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import pino from 'pino-http';
-import { connectMongoDB } from './db/connectMongoDB';
 
 const app = express();
 const PORT = process.env.PORT ?? 3030;
@@ -25,8 +24,6 @@ app.use(
     },
   }),
 );
-
-await connectMongoDB();
 
 app.get('/notes', (req, res) => {
   res.status(200).json({ message: 'Retrieved all notes' });
