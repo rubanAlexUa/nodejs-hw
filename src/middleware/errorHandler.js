@@ -1,12 +1,12 @@
 import { HttpError } from 'http-errors';
 
-export const errorHandler = async (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
   console.error('Error Middleware:', err);
 
   // Якщо помилка створена через http-errors
   if (err instanceof HttpError) {
     return res.status(err.status).json({
-      error: err.message || err.name,
+      message: err.message || err.name,
     });
   }
 
