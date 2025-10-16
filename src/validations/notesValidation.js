@@ -31,18 +31,12 @@ export const noteIdSchema = {
   }),
 };
 
-export const deleteNoteScheme = {
-  [Segments.PARAMS]: Joi.object({
-    noteId: Joi.string().custom(objectIdValidator).required(),
-  }),
-};
-
 export const updateNoteSchema = {
   [Segments.PARAMS]: Joi.object({
     noteId: Joi.string().custom(objectIdValidator).required(),
   }),
   [Segments.BODY]: Joi.object({
-    title: Joi.string().min(1).required(),
+    title: Joi.string().min(1),
     content: Joi.string(),
     tag: Joi.string().valid(...TAGS),
   }).min(1),
