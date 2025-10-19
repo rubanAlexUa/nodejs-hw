@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 
 import { createSession } from '../services/auth.js';
-import { User } from '../models/users.js';
+import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { setSessionCookie } from '../services/auth.js';
 
