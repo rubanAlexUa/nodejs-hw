@@ -3,10 +3,12 @@ import 'dotenv/config';
 import cors from 'cors';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { errors } from 'celebrate';
+import cookieParser from 'cookie-parser';
 
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
-import notesRouter from './routes/notesRoutes.js';
+import notesRoutes from './routes/notesRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -15,8 +17,10 @@ const PORT = process.env.PORT ?? 3030;
 app.use(logger);
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
-app.use(notesRouter);
+app.use(authRoutes);
+app.use(notesRoutes);
 
 app.use(notFoundHandler);
 
