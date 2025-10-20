@@ -4,14 +4,14 @@ import createHttpError from 'http-errors';
 import { createSession } from '../services/auth.js';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
-import { setSessionCookie } from '../services/auth.js';
+import { setSessionCookies } from '../services/auth.js';
 
 export const registerUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return next(createHttpError(404, 'Email in use'));
+    return next(createHttpError(400, 'Email in use'));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,7 +22,7 @@ export const registerUser = async (req, res, next) => {
   });
 
   const newSession = await createSession(newUser._id);
-  setSessionCookie(res, newSession);
+  setSessionCookies(res, newSession);
 
   res.status(201).json(newUser);
 };
@@ -32,18 +32,18 @@ export const loginUser = async (req, res, next) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return next(createHttpError(404, 'User not found'));
+    return next(createHttpError(401, 'User not found'));
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
-    return next(createHttpError(404, 'Password is not correct'));
+    return next(createHttpError(401, 'Password is not correct'));
   }
 
   await Session.deleteOne(user._id);
 
   const newSession = await createSession(user._id);
-  setSessionCookie(res, newSession);
+  setSessionCookies(res, newSession);
 
   res.status(200).json(user);
 };
@@ -59,7 +59,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie('accessToken');
   res.clearCookie('refreshToken');
 
-  res.status(404).json({});
+  res.status(204).json({});
 };
 
 export const refreshUserSession = async (req, res, next) => {
@@ -69,13 +69,13 @@ export const refreshUserSession = async (req, res, next) => {
   });
 
   if (!session) {
-    return next(createHttpError(404, 'Session is not found'));
+    return next(createHttpError(401, 'Session is not found'));
   }
 
   const isSessionExpired =
     new Date() > new Date(session.refreshTokenValidUntil);
   if (isSessionExpired) {
-    return next(createHttpError(404, 'Session token expires'));
+    return next(createHttpError(401, 'Session token expires'));
   }
 
   await Session.deleteOne({
@@ -84,7 +84,7 @@ export const refreshUserSession = async (req, res, next) => {
   });
 
   const newSession = await createSession(session.userId);
-  setSessionCookie(res, newSession);
+  setSessionCookies(res, newSession);
 
   res.status(200).json({
     message: 'Session refreshed',
