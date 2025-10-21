@@ -40,7 +40,7 @@ export const loginUser = async (req, res, next) => {
     return next(createHttpError(401, 'Password is not correct'));
   }
 
-  await Session.deleteOne(user._id);
+  await Session.deleteOne({ userId: user._id });
 
   const newSession = await createSession(user._id);
   setSessionCookies(res, newSession);
@@ -59,7 +59,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie('accessToken');
   res.clearCookie('refreshToken');
 
-  res.status(204).json({});
+  res.status(204).end();
 };
 
 export const refreshUserSession = async (req, res, next) => {
