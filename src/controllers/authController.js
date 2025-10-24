@@ -9,7 +9,7 @@ import { createSession } from '../services/auth.js';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { setSessionCookies } from '../services/auth.js';
-import { sendMail } from '../utils/sendMail.js';
+import { sendEmail } from '../utils/sendMail.js';
 
 export const registerUser = async (req, res, next) => {
   const { email, password } = req.body;
@@ -53,16 +53,20 @@ export const loginUser = async (req, res, next) => {
   res.status(200).json(user);
 };
 
-export const logoutUser = async (req, res) => {
+export const logoutUser = async (req, res, next) => {
   const { sessionId } = req.cookies;
 
-  if (sessionId) {
-    await Session.deleteOne({ _id: sessionId });
-  }
+  try {
+    if (sessionId) {
+      await Session.deleteOne({ _id: sessionId });
+    }
 
-  res.clearCookie('sessionId');
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+  } catch {
+    next(createHttpError(500, 'Error of logout'));
+  }
 
   res.status(204).end();
 };
@@ -111,17 +115,17 @@ export const requestResetEmail = async (req, res, next) => {
     { expiresIn: '15m' },
   );
 
-  const templatePath = path.resolve('src/templates/reset-passwors-email.html');
+  const templatePath = path.resolve('src/templates/reset-password-email.html');
   const templateSource = await fs.readFile(templatePath, 'utf-8');
   const template = handleBars.compile(templateSource);
 
   const html = template({
     name: user.username,
-    link: `${process.env.FRONTED_DOMAIN}/reset-password?token=${resetToken}`,
+    link: `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`,
   });
 
   try {
-    await sendMail({
+    await sendEmail({
       from: process.env.SMTP_FROM,
       to: email,
       subject: 'reset your password',
@@ -157,7 +161,7 @@ export const resetPassword = async (req, res, next) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  await User.findOne({ _id: user._id }, { password: hashedPassword });
+  await User.updateOne({ _id: user._id }, { password: hashedPassword });
 
   await Session.deleteMany({ userId: user._id });
   res.status(200).json({
