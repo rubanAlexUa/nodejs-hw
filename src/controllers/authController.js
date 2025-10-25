@@ -66,6 +66,7 @@ export const logoutUser = async (req, res, next) => {
     res.clearCookie('refreshToken');
   } catch {
     next(createHttpError(500, 'Error of logout'));
+    return;
   }
 
   res.status(204).end();
@@ -165,6 +166,6 @@ export const resetPassword = async (req, res, next) => {
 
   await Session.deleteMany({ userId: user._id });
   res.status(200).json({
-    message: 'Password reset seccessfully. Please log in again',
+    message: 'Password reset successfully. Please log in again',
   });
 };
